@@ -1,0 +1,118 @@
+
+{	{
+	int a;
+	int b;
+	int c;
+	int d;
+
+	a = 0;
+	for (a = 0; a < c; a = a + 1)
+		{
+			d = d + 2;
+			a = a + b;
+			if ( d == a)
+				break;
+			;
+		}
+	;}
+
+
+	{
+	string escrever;
+	escrever = "UMA FRASE
+	\n\n
+	";
+	for (a = 0; a < 50; a = a + 1)
+		{
+			print escrever;
+			print "\n";
+		}
+	;
+
+
+	}
+
+	{
+		string identificador[10];
+		for (c = 0; c < 25; c = c + 3)
+		{
+			read identificador[c];
+
+			print identificador[c];
+
+			if (c >= a) 
+				{
+					;
+						;
+					break;
+				};
+		}
+		;
+		return;
+	}
+
+
+	{
+		if (b !=d) {
+			read d;
+			print d;
+
+			return;
+		};
+	}
+
+	{
+		identificador [10][2][1] = new int[a];
+		identificador[1][1][0] = a + 10;
+		int x;
+		int y;
+		int z;
+		for (x = 0; x < 100; x = x + 1)
+		{
+			for (y = x; y > 0; y = y - 1) {
+				for (z = 37; z <= 3; z = 7 - y)
+					identificador[x][y][z] = 2;
+				;
+			};
+		};
+	}
+
+	{
+
+		float id;
+		id = null;
+		id = 729.0;
+
+		if (id == 287.01231)
+		{
+			string linha;
+			linha = "Alguma
+			String!@#\n";
+		} else 
+		{
+			string linha;
+			linha = "Alguma
+			Outra String
+			Caracteres especiais: 
+			456465465416548548	456
+			!@#\n";
+		};
+	}
+
+	{
+	int a;
+	float b;
+	string c;
+
+	a = new string[a][c][b][c][b][c][b][c];
+	a = a + b;
+	b = b - c;
+	c = d * 10;
+	c = a / c;
+	b = a % 22;
+
+	a = 22.9;
+	b = 27;
+	c = a - b;
+	}
+}

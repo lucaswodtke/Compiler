@@ -1,0 +1,541 @@
+Program -> STATEMENT
+	Program.next = new Label ($)
+	Program.break = ""
+	Program.return = Program.next
+	Program.code = STATEMENT.code || "\n" || Program.next
+	STATEMENT.informacoes = Program.informacoes
+Program -> FUNCLIST
+	Program.next = new Label ($)
+	Program.break = ""
+	Program.return = Program.next
+	Program.code = FUNCLIST.code || "\n" || Program.next
+		FUNCLIST.informacoes = Program.informacoes
+Program -> ''
+	Program.next = new Label ($)
+	Program.break = ""
+	Program.return = Program.next
+
+STATEMENT -> { STATELIST }
+	STATEMENT.code = STATELIST.code
+	STATELIST.informacoes = STATEMENT.informacoes
+STATEMENT -> break ;
+	STATEMENT.code = "goto " STATEMENT.break + "\n"
+STATEMENT -> ;
+	STATEMENT.code = ""
+
+
+
+
+
+
+STATELIST' -> { STATELIST } STATELIST'
+	STATELIST'.code = STATELIST.code + STATELIST'.code
+	STATELIST.informacoes = STATELIST'.informacoes
+	STATELIST.next = STATELIST'.label
+	STATELIST'.label = new Label()
+	STATELIST'.informacoes = STATELIST'.informacoes
+
+STATELIST' -> break ; STATELIST'
+	STATELIST'.code = "goto " + STATELIST'.break + "\n" + STATELIST'.code
+	STATELIST'.informacoes = STATELIST'.informacoes
+	STATELIST'.break = ""
+
+STATELIST' -> ; STATELIST'
+	STATELIST'.code = " /n" || STATELIST'.code
+STATELIST' -> ''
+	STATELIST'.code = ""
+
+
+
+
+STATELIST -> { STATELIST } STATELIST'
+	STATELIST.code = STATELIST.code + STATELIST'.code
+	STATELIST.informacoes = STATELIST.informacoes
+	STATELIST.next = STATELIST'.label
+	STATELIST'.label = new Label()
+	STATELIST'.informacoes = STATELIST.informacoes
+
+STATELIST -> break ; STATELIST'
+	STATELIST.code = "goto " + STATELIST.break + "\n" + STATELIST'.code
+	STATELIST'.informacoes = STATELIST.informacoes
+	STATELIST'.break = ""
+
+STATELIST -> ; STATELIST'
+	STATELIST'.informacoes = STATELIST.informacoes
+	STATELIST.code = STATELIST'.code
+
+
+
+
+
+FUNCLIST' -> ''
+	FUNCLIST'.code = ""
+FUNCLIST -> FUNCDEF FUNCLIST'
+	FUNCDEF.informacoes = FUNCLIST.informacoes
+	FUNCDEF.next = FUNCLIST'.next
+	FUNCDEF.label = newLabel
+	FUNCLIST'.informacoes = FUNCLIST.informacoes
+	FUNCLIST.label = newLabel
+	FUNCLIST.code = FUNCDEF.code + FUNCLIST.code
+FUNCLIST' -> def ident ( PARAMLIST ) { STATELIST } FUNCLIST'1
+	STATELIST.informacoes = FUNCLIST'.informacoes
+	STATELIST.next = FUNCLIST'.label
+	FUNCLIST'.informacoes = FUNCLIST'.informacoes
+	FUNCLIST'.label = newLabel
+	FUNCLIST'.code = "def_" + FUNCLIST'1.label + "\n" + STATELIST.code + FUNCLIST'1.code
+FUNCDEF -> def ident ( PARAMLIST ) { STATELIST }
+	STATELIST.informacoes = FUNCDEF.informacoes
+	FUNCDEF.code = "def_" + FUNCDEF.label + "\n" + STATELIST.code
+
+STATEMENT -> VARDECL ;
+	STATEMENT.code = ""
+STATELIST' -> string ident VARDECL' ; STATELIST'
+	STATELIST'.informacoes = STATELIST'.informacoes
+	STATELIST'.code = STATELIST'.code
+STATELIST' -> float ident VARDECL' ; STATELIST'
+	STATELIST'.informacoes = STATELIST'.informacoes
+	STATELIST'.code = STATELIST'.code
+STATELIST' -> int ident VARDECL' ; STATELIST'
+	STATELIST'.informacoes = STATELIST'.informacoes
+	STATELIST'.code = STATELIST'.code
+STATELIST -> string ident VARDECL' ; STATELIST'
+	STATELIST'.informacoes = STATELIST.informacoes
+	STATELIST'.code = STATELIST'.code
+STATELIST -> float ident VARDECL' ; STATELIST'
+	STATELIST'.informacoes = STATELIST.informacoes
+	STATELIST'.code = STATELIST'.code
+STATELIST -> int ident VARDECL' ; STATELIST'
+	STATELIST'.informacoes = STATELIST.informacoes
+	STATELIST'.code = STATELIST'.code
+
+STATELIST' -> print EXPRESSION ; STATELIST'
+	EXPRESSION.temp = newTemp
+	STATELIST'.informacoes = STATELIST'.informacoes
+	STATELIST'.code = EXPRESSION.late + EXPRESSION.code + "param " + EXPRESSION.temp + "\n" + "call 1,print;\n" + STATELIST'.code
+STATEMENT -> PRINTSTAT ;
+	STATEMENT.code = PRINTSTAT.code
+STATELIST -> print EXPRESSION ; STATELIST'
+	STATELIST'.informacoes = STATELIST.informacoes
+	EXPRESSION.temp = newTemp
+	STATELIST.code = EXPRESSION.late + EXPRESSION.code + "param " + EXPRESSION.temp + "\n" + "call 1,print;\n" + STATELIST'.code
+PRINTSTAT -> print EXPRESSION
+	EXPRESSION.temp = newTemp
+	PRINTSTAT.code = EXPRESSION.late + EXPRESSION.code + "param " + EXPRESSION.temp + "\n" + "call 1,print;\n"
+
+
+STATELIST' -> read LVALUE ; STATELIST'
+	LVALUE.temp = newTemp
+	STATELIST'.informacoes = STATELIST'.informacoes
+	STATELIST'.code = LVALUE.late + LVALUE.code + "param " + LVALUE.temp + "\ncall 1,read;\n" + STATELIST'.code
+STATEMENT -> READSTAT ;
+	STATEMENT.code = READSTAT.code
+STATELIST -> read LVALUE ; STATELIST'
+	LVALUE.temp = newTemp
+	STATELIST'.informacoes = STATELIST.informacoes
+	STATELIST.code = LVALUE.late + LVALUE.code + "param " + LVALUE.temp + "\n" + "call 1,read;\n" + STATELIST'.code
+READSTAT -> read LVALUE
+	LVALUE.temp = newTemp
+	READSTAT.code = LVALUE.late + LVALUE.code + "param " + LVALUE.temp + "\n" + "call 1,read;\n"
+
+STATELIST' -> return ; STATELIST'
+	STATELIST'.informacoes = STATELIST'.informacoes
+	STATELIST'.code = "goto " + STATELIST'.return + "\n" + STATELIST'.code
+STATELIST -> return ; STATELIST'
+	STATELIST'.informacoes = STATELIST.informacoes
+	STATELIST.code = "goto " + STATELIST.return + "\n" + STATELIST'.code
+STATEMENT -> RETURNSTAT ;
+	STATEMENT.code = RETURNSTAT.code
+	RETURNSTAT.return = STATEMENT.return
+RETURNSTAT -> return
+	RETURNSTAT.code = "goto " + RETURNSTAT.return
+
+STATEMENT -> FORSTAT ;
+	FORSTAT.informacoes = STATEMENT.informacoes
+	STATEMENT.code = FORSTAT.code
+	FORSTAT.break = STATEMENT.next
+STATELIST' -> for ( ATRIBSTAT ; EXPRESSION ; ATRIBSTAT ) STATEMENT ; STATELIST'
+	STATELIST'.label = newLabel
+	STATELIST'.label = B.false
+	STATEMENT.informacoes = STATELIST'.informacoes
+	STATEMENT.break = STATELIST'.label
+	STATEMENT.next = STATELIST'.label
+	STATELIST'.informacoes = STATELIST'.informacoes
+	EXPRESSION.true = newLabel
+	EXPRESSION.false = newLabel
+	ATRIBSTAT.temp = newTemp
+	ATRIBSTAT.temp = newTemp
+	EXPRESSION.temp = newTemp
+	STATELIST'.code = STATELIST.label + "\n" + ATRIBSTAT.late + ATRIBSTAT.code + EXPRESSION.late + EXPRESSION.code + EXPRESSION.boolean + EXPRESSION.true + "\n" +
+						ATRIBSTAT.late + ATRIBSTAT.code + STATEMENT.code + "goto " + STATELIST.label + "\n" + STATELIST'.label + "\n" + STATELIST'.code
+STATELIST -> for ( ATRIBSTAT ; EXPRESSION ; ATRIBSTAT ) STATEMENT ; STATELIST'
+	STATELIST.label = newLabel
+	STATELIST'.label = newLabel
+	STATEMENT.informacoes = STATELIST.informacoes
+	STATEMENT.break = STATELIST'.label
+	STATEMENT.next = STATELIST.label
+	STATELIST'.informacoes = STATELIST.informacoes
+	EXPRESSION.true = newLabel
+	EXPRESSION.false = STATELIST'.label
+	ATRIBSTAT.temp = newTemp
+	ATRIBSTAT.temp = newTemp
+	EXPRESSION.temp = newTemp
+	STATELIST.code = STATELIST.label + "\n" + ATRIBSTAT.late + ATRIBSTAT.code + EXPRESSION.late + EXPRESSION.code + EXPRESSION.boolean + EXPRESSION.true + "\n" +
+						ATRIBSTAT.late + ATRIBSTAT.code + STATEMENT.code + "goto " + STATELIST.label + "\n" + STATELIST'.label + "\n" + STATELIST'.code
+FORSTAT -> for ( ATRIBSTAT ; EXPRESSION ; ATRIBSTAT ) STATEMENT
+	FORSTAT.label = newLabel
+	STATEMENT.informacoes = FORSTAT.informacoes
+	STATEMENT.next = FORSTAT.label
+	EXPRESSION.true = newLabel
+	EXPRESSION.false = FORSTAT.next
+	ATRIBSTAT.temp = newTemp
+	ATRIBSTAT.temp = newTemp
+	EXPRESSION.temp = newTemp
+	FORSTAT.code = FORSTAT.label + "\n" + ATRIBSTAT.late + ATRIBSTAT.code + EXPRESSION.late + EXPRESSION.code + EXPRESSION.boolean + EXPRESSION.true + "\n" +
+					ATRIBSTAT.late + ATRIBSTAT.code + STATEMENT.code + "goto " + FORSTAT.label + "\n"
+
+STATEMENT -> ATRIBSTAT ;
+	STATEMENT.code = ATRIBSTAT.code
+STATELIST' -> ident LVALUELOOP = ATRIBSTAT' ; STATELIST'
+	STATELIST.code = LVALUELOOP.late + ATRIBSTAT'.late + ATRIBSTAT'.code + ident.valor + LVALUELOOP.code + "=" + ATRIBSTAT'.temp + "\n" + STATELIST'.code
+	STATELIST'.informacoes = STATELIST'.informacoes
+	LVALUE.temp = newTemp
+	ATRIBSTAT'.temp = newTemp
+ATRIBSTAT -> LVALUE = ATRIBSTAT'
+	STATELIST.code = LVALUE.late + ATRIBSTAT'.late + LVALUE.code + ATRIBSTAT'.code + LVALUE.temp + "=" + ATRIBSTAT'.temp + "\n" + STATELIST'.code
+	LVALUE.temp = newTemp
+	ATRIBSTAT'.temp = newTemp
+STATELIST -> LVALUE = ATRIBSTAT' ; STATELIST'
+	STATELIST'.informacoes = STATELIST.informacoes
+	STATELIST.code = LVALUE.late + ATRIBSTAT'.late + LVALUE.code + ATRIBSTAT'.code + LVALUE.temp + "=" + ATRIBSTAT'.temp + "\n" + STATELIST'.code
+	LVALUE.temp = newTemp
+	ATRIBSTAT'.temp = newTemp
+ATRIBSTAT' -> + FACTOR UNARYEXPRLOOP TERMLOOP EXPRESSION'
+	ATRIBSTAT'.code = 	ATRIBSTAT'.temp =+ "= +" + FACTOR.temp + "\n"
+						ATRIBSTAT'.temp + " = " + ATRIBSTAT'.temp + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + TERMLOOP.op + TERMLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + EXPRESSION'.op + EXPRESSION.temp + "\n"
+	ATRIBSTAT'.late = UNARYEXPRLOOP.late + UNARYEXPRLOOP.code + TERMLOOP.late + TERMLOOP.code + EXPRESSION'.late + EXPRESSION'.code
+	UNARYEXPRLOOP.temp = newTemp
+	TERMLOOP.temp = newTemp
+	EXPRESSION'.temp = newTemp
+	FACTOR.temp = newTemp
+ATRIBSTAT' -> - FACTOR UNARYEXPRLOOP TERMLOOP EXPRESSION'
+	ATRIBSTAT'.code = 	ATRIBSTAT'.temp =+ "= -" + FACTOR.temp + "\n"
+						ATRIBSTAT'.temp + " = " + ATRIBSTAT'.temp + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + TERMLOOP.op + TERMLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + EXPRESSION'.op + EXPRESSION.temp + "\n"
+	ATRIBSTAT'.late = UNARYEXPRLOOP.late + UNARYEXPRLOOP.code + TERMLOOP.late + TERMLOOP.code + EXPRESSION'.late + EXPRESSION'.code
+	UNARYEXPRLOOP.temp = newTemp
+	TERMLOOP.temp = newTemp
+	EXPRESSION'.temp = newTemp
+	FACTOR.temp = newTemp
+ATRIBSTAT' -> int_constant UNARYEXPRLOOP TERMLOOP EXPRESSION'
+	ATRIBSTAT'.code = ATRIBSTAT'.temp + " = " + int_constant.valor + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + TERMLOOP.op + TERMLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + EXPRESSION'.op + EXPRESSION.temp + "\n"
+	ATRIBSTAT'.late = UNARYEXPRLOOP.late + UNARYEXPRLOOP.code + TERMLOOP.late + TERMLOOP.code + EXPRESSION'.late + EXPRESSION'.code
+	UNARYEXPRLOOP.temp = newTemp
+	TERMLOOP.temp = newTemp
+	EXPRESSION'.temp = newTemp
+ATRIBSTAT' -> float_constant UNARYEXPRLOOP TERMLOOP EXPRESSION'
+	ATRIBSTAT'.code = ATRIBSTAT'.temp + " = " + float_constant.valor + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + TERMLOOP.op + TERMLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + EXPRESSION'.op + EXPRESSION.temp + "\n"
+	ATRIBSTAT'.late = UNARYEXPRLOOP.late + UNARYEXPRLOOP.code + TERMLOOP.late + TERMLOOP.code + EXPRESSION'.late + EXPRESSION'.code
+	UNARYEXPRLOOP.temp = newTemp
+	TERMLOOP.temp = newTemp
+	EXPRESSION'.temp = newTemp
+ATRIBSTAT' -> string_constant UNARYEXPRLOOP TERMLOOP EXPRESSION'
+	ATRIBSTAT'.code = ATRIBSTAT'.temp + " = " + string_constant.valor + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + TERMLOOP.op + TERMLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + EXPRESSION'.op + EXPRESSION.temp + "\n"
+	ATRIBSTAT'.late = UNARYEXPRLOOP.late + UNARYEXPRLOOP.code + TERMLOOP.late + TERMLOOP.code + EXPRESSION'.late + EXPRESSION'.code
+	UNARYEXPRLOOP.temp = newTemp
+	TERMLOOP.temp = newTemp
+	EXPRESSION'.temp = newTemp
+ATRIBSTAT' -> null UNARYEXPRLOOP TERMLOOP EXPRESSION'
+	ATRIBSTAT'.code = ATRIBSTAT'.temp + "= null" + EXPRESSION'.op + EXPRESSION'.temp
+	ATRIBSTAT'.late = EXPRESSION'.late + EXPRESSION'.code
+	EXPRESSION'.temp = newTemp
+ATRIBSTAT' -> ( EXPRESSION ) UNARYEXPRLOOP TERMLOOP EXPRESSION'
+	ATRIBSTAT'.code = ATRIBSTAT'.temp + " = " + EXPRESSION.temp + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + TERMLOOP.op + TERMLOOP.temp + "\n" +
+						ATRIBSTAT'.temp + "=" + ATRIBSTAT'.temp + EXPRESSION'.op + EXPRESSION.temp + "\n"
+	ATRIBSTAT'.late = EXPRESSION.late + EXPRESSION.code + UNARYEXPRLOOP.late + UNARYEXPRLOOP.code + TERMLOOP.late + TERMLOOP.code + EXPRESSION'.late + EXPRESSION'.code
+	EXPRESSION.temp = newTemp
+	UNARYEXPRLOOP.temp = newTemp
+	TERMLOOP.temp = newTemp
+	EXPRESSION'.temp = newTemp
+ATRIBSTAT' -> new ALLOCEXPRESSION'
+	ATRIBSTAT'.code = ATRIBSTAT.temp + " = " + ALLOCEXPRESSION'.temp + "\n"
+	ATRIBSTAT'.late = ALLOCEXPRESSION'.late + ALLOCEXPRESSION'.code
+	ALLOCEXPRESSION'.temp = newTemp
+ATRIBSTAT' -> ident ATRIBSTAT''
+	ATRIBSTAT'.code = ATRIBSTAT'.temp + "=" + ATRIBSTAT''.temp + "\n"
+	ATRIBSTAT'.late = ATRIBSTAT''.late + ATRIBSTAT''.code
+	ATRIBSTAT'.temp = ident.valor
+	ATRIBSTAT''.temp = newTemp
+
+ATRIBSTAT'' -> ( PARAMLISTCALL )
+	ATRIBSTAT''.late = PARAMLISTCALL.late + PARAMLISTCALL.code
+	ATRIBSTAT''.code = ATRIBSTAT''.temp +"=" + "call " + PARAMLISTCALL.temp + "," + ATRIBSTAT''.temp + "\n"
+	PARAMLISTCALL.temp = newTemp
+
+ATRIBSTAT'' -> LVALUELOOP UNARYEXPRLOOP TERMLOOP EXPRESSION'
+	ATRIBSTAT''.code = ATRIBSTAT''.temp + "="  + ATRIBSTAT''.temp + LVALUELOOP.code + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n" +
+						ATRIBSTAT''.temp + "=" + ATRIBSTAT''.temp + TERMLOOP.op + TERMLOOP.temp + "\n" +
+						ATRIBSTAT''.temp + "=" + ATRIBSTAT''.temp + EXPRESSION'.op + EXPRESSION.temp + "\n"
+	ATRIBSTAT''.late = LVALUELOOP.late + UNARYEXPRLOOP.late + TERMLOOP.late + EXPRESSION'.late + UNARYEXPRLOOP.code + TERMLOOP.code + EXPRESSION'.code
+	LVALUELOOP.temp = newTemp
+	UNARYEXPRLOOP.temp = newTemp
+	TERMLOOP.temp = newTemp
+	EXPRESSION'.temp = newTemp
+
+PARAMLISTCALL -> ident PARAMLISTCALL'
+	PARAMLISTCALL.late = PARAMLISTCALL.temp + "=" + PARAMLISTCALL'.temp + "+ 1 ;\n"
+	PARAMLISTCALL.code = "param " + ident.valor + "\n"
+	PARAMLISTCALL'.temp = newTemp
+PARAMLISTCALL -> ''
+	PARAMLISTCALL.late = PARAMLISTCALL.temp + "= 0 ;\n"
+	PARAMLISTCALL.code = ""
+PARAMLISTCALL' -> ident PARAMLISTCALL'
+	PARAMLISTCALL'.late = PARAMLISTCALL.temp + "=" + PARAMLISTCALL'.temp + "+ 1 ;\n"
+	PARAMLISTCALL'.code = "param " + ident.valor + "\n"
+	PARAMLISTCALL'.temp = newTemp
+PARAMLISTCALL' -> ''
+	PARAMLISTCALL'.late = PARAMLISTCALL'.temp + "= 0 ;\n"
+	PARAMLISTCALL'.code = ""
+
+ALLOCEXPRESSION -> new ALLOCEXPRESSION'
+	ALLOCEXPRESSION.code = ALLOCEXPRESSION.temp + "=" + ALLOCEXPRESSION'.temp +"\n"
+	ALLOCEXPRESSION.late = ALLOCEXPRESSION'.late + ALLOCEXPRESSION'.code
+	ALLOCEXPRESSION'.temp = newTemp
+
+ALLOCEXPRESSION' -> int EXPRESSIONLOOP
+	ALLOCEXPRESSION'.code = ALLOCEXPRESSION'.temp + "= int "EXPRESSIONLOOP.code +"\n"
+	ALLOCEXPRESSION'.late = EXPRESSIONLOOP.late
+ALLOCEXPRESSION' -> float EXPRESSIONLOOP
+	ALLOCEXPRESSION'.code =ALLOCEXPRESSION'.temp + "= float "EXPRESSIONLOOP.code  +"\n"
+	ALLOCEXPRESSION'.late = EXPRESSIONLOOP.late
+ALLOCEXPRESSION' -> string EXPRESSIONLOOP
+	ALLOCEXPRESSION'.code =ALLOCEXPRESSION'.temp + "= string "EXPRESSIONLOOP.code + "\n"
+	ALLOCEXPRESSION'.late = EXPRESSIONLOOP.late
+
+EXPRESSIONLOOP -> [ EXPRESSION ] EXPRESSIONLOOP'
+	EXPRESSIONLOOP.code = "[" + +EXPRESSION.temp + "]" + EXPRESSIONLOOP.code + "\n"
+	EXPRESSIONLOOP.late = EXPRESSION.late + EXPRESSION.code +EXPRESSIONLOOP.late
+	EXPRESSION.temp = newTemp
+
+
+EXPRESSIONLOOP' -> [ EXPRESSION ] EXPRESSIONLOOP'
+	EXPRESSIONLOOP'.code = "[" + EXPRESSION.temp + "]" + EXPRESSIONLOOP'.code
+	EXPRESSIONLOOP'.late = EXPRESSION.late + EXPRESSION.code + EXPRESSIONLOOP.late
+	EXPRESSION.temp = newTemp
+EXPRESSIONLOOP' -> ''
+ 	EXPRESSIONLOOP'.temp = ""
+ 	EXPRESSIONLOOP'.code = ""
+ 	EXPRESSIONLOOP'.late = ""
+
+//PRONTO
+STATELIST -> if ( EXPRESSION ) STATEMENT IFSTAT' ; STATELIST'
+	EXPRESSION.true = newLabel
+	EXPRESSION.false = newLabel
+	EXPRESSION.temp = newTemp
+	STATELIST'.label = newLabel
+	STATELIST'.next = STATELIST.next
+	STATELIST'.break = STATELIST.break
+	STATEMENT.break = STATELIST.break
+	IFSTAT'.break = STATELIST.break
+	STATELIST'.return = STATELIST.return
+	STATEMENT.return = STATELIST.return
+	IFSTAT'.return = = STATELIST.return
+	STATEMENT.label = EXPRESSION.true
+	STATEMENT.next = STATELIST'.label
+	IFSTAT'.label = EXPRESSION.false
+	IFSTAT'.next = STATELIST'.label
+	STATELIST.code = STATELIST.label + "\n" + EXPRESSION.late + EXPRESSION.code + EXPRESSION.boolean + STATEMENT.code + goto STATEMENT.next + IFSTAT'.code + STATELIST'.code
+STATELIST' -> if ( EXPRESSION ) STATEMENT IFSTAT' ; STATELIST'
+	EXPRESSION.true = newLabel
+	EXPRESSION.false = newLabel
+	EXPRESSION.temp = newTemp
+	STATELIST'.label = new Label()
+	STATELIST'.next = STATELIST'.next
+	STATELIST'.break = STATELIST'.break
+	STATEMENT.break = STATELIST'.break
+	IFSTAT'.break = = STATELIST'.break
+	STATELIST'.return = STATELIST'.return
+	STATEMENT.return = STATELIST'.return
+	IFSTAT'.return = = STATELIST'.return
+	STATEMENT.label = EXPRESSION.true
+	STATEMENT.next = STATELIST'.label
+	IFSTAT'.label = EXPRESSION.false
+	IFSTAT'.next = STATELIST'.label
+	STATELIST'a.code = STATELIST'.label + "\n"  + EXPRESSION.late + EXPRESSION.code + EXPRESSION.boolean + STATEMENT.code goto STATEMENT.next + IFSTAT'.code + STATELIST'.code
+STATEMENT -> IFSTAT ;
+	STATEMENT.code = STATEMENT.label + "\n"  + IFSTAT.code
+	IFSTAT.next = STATEMENT.next
+	IFSTAT.break = STATEMENT.break
+	IFSTAT.return = STATEMENT.return
+IFSTAT -> if ( EXPRESSION ) STATEMENT IFSTAT'
+	EXPRESSION.true = newLabel
+	EXPRESSION.false = newLabel
+	EXPRESSION.temp = newTemp
+	STATEMENT.label = EXPRESSION.true
+	STATEMENT.break = IFSTAT.break
+	IFSTAT'.break = = IFSTAT.break
+	IFSTAT'.break = = STATELIST'.break
+	STATEMENT.return = IFSTAT.return
+	IFSTAT'.return = = IFSTAT.return
+	IFSTAT'.return = = STATELIST'.return
+	STATEMENT.next = IFSTAT.next
+	IFSTAT'.label = EXPRESSION.false
+	IFSTAT'.next = IFSTAT.next
+	IFSTAT.code = EXPRESSION.late + EXPRESSION.code + EXPRESSION.boolean + STATEMENT.code + goto STATEMENT.next + "\n" + IFSTAT'.code
+IFSTAT' -> else STATEMENT
+	IFSTAT'.code = IFSTAT'.label + "\n" + STATEMENT.code
+	STATEMENT.next = IFSTAT.next
+	STATEMENT.break = IFSTAT'.break
+	STATEMENT.return = IFSTAT'.return
+IFSTAT' -> ''
+	IFSTAT'.code = "IFSTAT'.label + "\n"
+
+EXPRESSION -> NUMEXPRESSION EXPRESSION'
+	EXPRESSION.code = EXPRESSION.temp + "=" + NUMEXPRESSION.temp + EXPRESSION'.op + EXPRESSION'.temp + "\n"
+	EXPRESSION.late = NUMEXPRESSION.late + EXPRESSION'.late + NUMEXPRESSION.code + EXPRESSION'.code
+	NUMEXPRESSION.temp = new temp();
+	EXPRESSION'.temp = new temp();
+	EXPRESSION.boolean = "if " + EXPRESSION.temp + " == 1 goto " + EXPRESSION.true + ";\ngoto " + EXPRESSION.false + "\n"
+
+EXPRESSION' -> ''
+	EXPRESSION'.code = ""
+	EXPRESSION'.late = ""
+	EXPRESSION'.temp = ""
+	EXPRESSION'.op = ""
+EXPRESSION' -> < NUMEXPRESSION
+	EXPRESSION'.code = EXPRESSION'.temp + "=" + NUMEXPRESSION.temp + "\n"
+	EXPRESSION'.late = NUMEXPRESSION.late + NUMEXPRESSION.code
+	EXPRESSION'.op = "<"
+EXPRESSION' -> > NUMEXPRESSION
+	EXPRESSION'.code = EXPRESSION'.temp + "=" + NUMEXPRESSION.temp + "\n"
+	EXPRESSION'.late = NUMEXPRESSION.late + NUMEXPRESSION.code
+	EXPRESSION'.op = ">"
+	NUMEXPRESSION.temp = newTemp
+EXPRESSION' -> <= NUMEXPRESSION
+	EXPRESSION'.code = EXPRESSION'.temp + "=" + NUMEXPRESSION.temp + "\n"
+	EXPRESSION'.late = NUMEXPRESSION.late + NUMEXPRESSION.code
+	EXPRESSION'.op = "<="
+	NUMEXPRESSION.temp = newTemp()
+EXPRESSION' -> >= NUMEXPRESSION
+	EXPRESSION'.code = EXPRESSION'.temp + "=" + NUMEXPRESSION.temp + "\n"
+	EXPRESSION'.late = NUMEXPRESSION.late + NUMEXPRESSION.code
+	EXPRESSION'.op = ">="
+	NUMEXPRESSION.temp = newTemp
+EXPRESSION' -> == NUMEXPRESSION
+	EXPRESSION'.code = EXPRESSION'.temp + "=" + NUMEXPRESSION.temp + "\n"
+	EXPRESSION'.late = NUMEXPRESSION.late + NUMEXPRESSION.code
+	EXPRESSION'.op = "=="
+	NUMEXPRESSION.temp = newTemp()
+EXPRESSION' -> != NUMEXPRESSION
+	EXPRESSION'.code = EXPRESSION'.temp + "=" + NUMEXPRESSION.temp + "\n"
+	EXPRESSION'.late = NUMEXPRESSION.late + NUMEXPRESSION.code
+	EXPRESSION'.op = "!="
+	NUMEXPRESSION.temp = newTemp
+
+NUMEXPRESSION -> TERM TERMLOOP
+	NUMEXPRESSION.late = TERM.late + TERMLOOP.late + TERM.code + TERMLOOP.code
+	NUMEXPRESSION.code = NUMEXPRESSION.temp + "=" + TERM.temp + TERMLOOP.op + TERMLOOP.temp + "\n"
+	TERM.temp = newTemp
+	TERMLOOP.temp = newTemp
+
+TERMLOOP -> + TERM TERMLOOP
+	TERMLOOP.code = TERMLOOP.temp + "=" + TERM.temp + TERMLOOP.op + TERMLOOP.temp"\n"
+	TERMLOOP.late = TERM.late + TERMLOOP.late + TERM.code + TERMLOOP.code
+	TERMLOOP.op = "+"
+	TERM.temp = newTemp
+	TERMLOOP.temp = newTemp
+TERMLOOP -> - TERM TERMLOOP
+	TERMLOOP.code = TERMLOOP.temp + "=" + TERM.temp + TERMLOOP.op + TERMLOOP.temp"\n"
+	TERMLOOP.late = TERM.late + TERMLOOP.late + TERM.code + TERMLOOP.code
+	TERMLOOP.op = "-"
+	TERM.temp = newTemp
+	TERMLOOP.temp = newTemp
+TERMLOOP -> ''
+	TERMLOOP.temp = ""
+	TERMLOOP.code = ""
+	TERMLOOP.late = ""
+	TERMLOOP.op = ""
+
+TERM -> UNARYEXPR UNARYEXPRLOOP
+	TERM.code = TERM.temp + "=" + UNARYEXPR.temp + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n"
+	TERM.late = UNARYEXPR.late + UNARYEXPRLOOP.late + UNARYEXPR.code + UNARYEXPRLOOP.code
+	UNARYEXPR.temp = newTemp
+	UNARYEXPRLOOP.temp = newTemp
+
+UNARYEXPRLOOP -> * UNARYEXPR UNARYEXPRLOOP
+	UNARYEXPRLOOP.code = "UNARYEXPRLOOP.temp + "=" + UNARYEXPR.temp + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n"
+	UNARYEXPRLOOP.late = UNARYEXPR.late + UNARYEXPRLOOP.late +UNARYEXPR.code + UNARYEXPRLOOP.code
+	UNARYEXPRLOOP.op = "*"
+	UNARYEXPR.temp = newTemp
+	UNARYEXPRLOOP.temp = newTemp
+UNARYEXPRLOOP -> / UNARYEXPR UNARYEXPRLOOP
+	UNARYEXPRLOOP.code = "UNARYEXPRLOOP.temp + "=" + UNARYEXPR.temp + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n"
+	UNARYEXPRLOOP.late = UNARYEXPR.late + UNARYEXPRLOOP.late +UNARYEXPR.code + UNARYEXPRLOOP.code
+	UNARYEXPRLOOP.op = "/"
+	UNARYEXPR.temp = newTemp
+	UNARYEXPRLOOP.temp = newTemp
+UNARYEXPRLOOP -> % UNARYEXPR UNARYEXPRLOOP
+	UNARYEXPRLOOP.code = "UNARYEXPRLOOP.temp + "=" + UNARYEXPR.temp + UNARYEXPRLOOP.op + UNARYEXPRLOOP.temp + "\n"
+	UNARYEXPRLOOP.late = UNARYEXPR.late + UNARYEXPRLOOP.late +UNARYEXPR.code + UNARYEXPRLOOP.code
+	UNARYEXPRLOOP.op = "%"
+	UNARYEXPR.temp = newTemp
+	UNARYEXPRLOOP.temp = newTemp
+UNARYEXPRLOOP -> ''
+	UNARYEXPRLOOP.temp = ""
+	UNARYEXPRLOOP.code = ""
+	UNARYEXPRLOOP.late = ""
+	UNARYEXPRLOOP.op = ""
+
+UNARYEXPR -> + FACTOR
+	UNARYEXPR.code = UNARYEXPR.temp + "= + " + FACTOR.temp +"\n"
+	UNARYEXPR.late = FACTOR.late + FACTOR.code
+	FACTOR.temp = newTemp
+UNARYEXPR -> - FACTOR
+	UNARYEXPR.code = UNARYEXPR.temp + "= - " + FACTOR.temp +"\n"
+	UNARYEXPR.late = FACTOR.late + FACTOR.code
+	FACTOR.temp = newTemp
+UNARYEXPR -> FACTOR
+	UNARYEXPR.code = UNARYEXPR.temp + "=" + FACTOR.temp + "\n"
+	UNARYEXPR.late = FACTOR.late + FACTOR.code
+	FACTOR.temp = newTemp
+
+FACTOR -> int_constant
+	FACTOR.code = FACTOR.temp + "=" + int_constant + "\n"
+	FACTOR.late = ""
+FACTOR -> float_constant
+	FACTOR.code = FACTOR.temp + "=" + float_constant + "\n"
+	FACTOR.late = ""
+FACTOR -> string_constant
+	FACTOR.code = FACTOR.temp + "=" + string_constant + "\n"
+	FACTOR.late = ""
+FACTOR -> null
+	FACTOR.code = FACTOR.temp + "=" + null + "\n"
+	FACTOR.late = ""
+FACTOR -> LVALUE
+	FACTOR.code = FACTOR.temp + "=" + LVALUE.temp + "\n"
+	FACTOR.late = LVALUE.late + LVALUE.code
+	LVALUE.temp = newTemp
+FACTOR -> ( EXPRESSION )
+	FACTOR.code = FACTOR.temp + "=" + EXPRESSION.temp + "\n"
+	FACTOR.late = EXPRESSION.late
+	EXPRESSION.temp = newTemp
+
+LVALUE -> ident LVALUELOOP
+	LVALUE.code = LVALUE.temp + "=" + ident.valor + LVALUELOOP.code + "\n"
+	LVALUE.late = LVALUELOOP.late
+LVALUELOOP -> [ EXPRESSION ] LVALUELOOP
+	LVALUELOOP.code = "[" + EXPRESSION.temp + "]" + LVALUELOOP.code
+	LVALUELOOP.late = EXPRESSION.late + EXPRESSION.code
+	EXPRESSION.temp = newTemp
+LVALUELOOP -> ''
+	LVALUELOOP.code = ""
+	LVALUELOOP.late = ""

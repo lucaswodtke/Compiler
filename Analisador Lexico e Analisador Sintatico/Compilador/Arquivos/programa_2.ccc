@@ -1,0 +1,119 @@
+{
+	{
+		string fraseA;
+		string fraseB;
+		string fraseC;
+		string fraseD;
+
+		int i;
+		int auxA;
+		int auxB;
+		int n;
+		int x;
+
+		fraseA = "Calculando fibonacci n\n";
+		fraseB = "Escreva n\n";
+		fraseC = "Resultado de fibonacci n esta em 'i'\n";
+
+		print fraseA;
+		print fraseB;
+
+		read n;
+		
+
+		i = 0;
+
+		if (n == 0)
+		{
+			print fraseC;
+			print i;
+			return;
+		};
+
+		if (n == 1)
+		{
+			print fraseC;
+			print i;
+			return;
+		};
+
+		n = n - 2;
+		auxA = 1;
+		auxB = 0;
+
+		for (x = 0; x < n; x = x + 1)
+		{
+			auxB = auxA;
+			auxA = i;
+			i = auxA + auxB;
+		};
+
+		print fraseC;
+		print i;
+		return;
+	}
+
+	{
+		string fraseInicial;
+		string fraseB;
+		string fraseC;
+		string fraseD;
+		string fraseN;
+
+		fraseInicial = "Encadeamento de If's";
+		fraseB = "A == B\n";
+		fraseC = "A != C\n";
+		fraseD = "A >= D\n";
+		fraseN = 	"A != B &&\n
+					 A == C &&\n
+					 A < D\n";
+
+
+		print fraseInicial;
+
+
+		int valorA;
+		int valorB;
+		int valorC;
+		int valorD;
+
+		if (valorA == valorB)
+		{
+			print fraseB;
+		} else {
+			if (valorA != valorC)
+			{
+				print fraseC;
+			} else {
+				if (valorA >= valorD)
+				{
+					print fraseD;
+				} else {
+					print fraseN;
+				};
+			};
+		};
+
+		return;
+	}
+
+	{
+		int n;
+		int fat;
+		int i;
+
+		print "Calculando fatorial n!\n";
+
+		read n;
+
+		fat = 1;
+		for (i = n; i > 0; i = i - 1) {
+			fat = fat * i;
+		};
+
+		print "Resultado = ";
+		print fat;
+		print "\n";
+
+	}
+}

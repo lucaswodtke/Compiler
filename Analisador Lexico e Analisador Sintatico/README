@@ -1,0 +1,30 @@
+Construção de Compiladores- Trabalho Prático 1
+
+Construção de um analisador léxico para uma linguagem (AL)
+Construção de um analisador sintático para uma linguagem (AS)
+
+Alunos: Lucas Henrique Gonçalves Wodtke (16202258)
+   	Marcelo Emilio Vendramin (16200653)
+
+
+Versão do Java usada no sistema: 1.8.0_144
+
+O programa foi feito na linguagem Java e requer a instalação do Java para executar. 
+Para instalar o java use seguinte comando via terminal no Linux: sudo apt-get-install default-jdk
+
+Para executar o programa, use o comando make no diretório principal.
+
+O Programa possui um menu e duas areas textuais, a primeira sendo o que o programa recebera de entrada e a segunda sendo a saida do programa.
+No menu sao apresentadas 3 opções:
+
+File: Nesta opção sao apresentadas 
+	Abrir arquivo: Abre um arquivo com o nome digitado, arquivo que deve ser localizado na pasta Arquivos do Compilador e estar na extensão ".ccc";
+	Salvar arquivo: Salva um arquivo com o nome digitado, arquivo salvo na extensão ".ccc".
+
+Analise:
+	Analise Lexica: Se sucesso, retorna uma lista de tokens do programa escrito na area textual 1, assim como os identificadores da tabela de simbolos. Se fracasso, retorna a linha e Coluna do primeiro erro lexico encontrado;
+	Analise Sintatica: Se sucesso, exibe uma mensagem de sucesso. Se fracasso, retorna a linha que identificou o erro, a produção que causou o erro, o token de entrada que causou o erro e as derivações que ocorreram até a identificação do erro;
+
+Informações:
+	Alunos: Exibe os alunos que criaram este programa;
+	ReadMe: Exibe esta mensagem;

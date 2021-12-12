@@ -1,0 +1,135 @@
+{
+	{
+	string fraseInicial;
+	string fraseMatrizA;
+	string fraseMatrizB;
+	string frasePegaNum;
+	string frasePegaLinha;
+	string frasePegaColuna;
+
+	int x;
+	int y;
+	int i;
+	int j;
+	int auxA;
+	int auxB;
+	int sum;
+	int matrizA[0][0];
+	int matrizB[0][0];
+	int matrizResult[0][0];
+
+	fraseInicial = "Multiplicao de Matrizes de inteiros\n";
+	frasePegaColuna = "Digite o numero de Colunas\n";
+	frasePegaLinha = "Digite o numero de Linhas\n";
+	frasePegaNum = "Digite um numero\n";
+	fraseMatrizA = "Digite os numeros da matriz A\n";
+	fraseMatrizB = "Digite os numeros da matriz B\n";
+
+	print fraseInicial;
+	print frasePegaLinha;
+
+	read x;
+
+	print frasePegaColuna;
+
+	read y;
+
+	matrizA = new int[x][y];
+	matrizB = new int[x][y];
+	matrizResult = new int[x][y];
+
+	print fraseMatrizA;
+	for (i = 0; i < x; i = i + 1) {
+		for (j = 0; j < y; j = j + 1) {
+			print frasePegaNum;
+			read matrizA[i][j];
+		};
+	};
+
+	print fraseMatrizB;
+	for (i = 0; i < x; i = i + 1) {
+		for (j = 0; j < y; j = j + 1) {
+			print frasePegaNum;
+			read matrizA[i][j];
+		};
+	};
+	
+	sum = 0;
+	for (i = 0; i < x; i = i + 1) {
+		for (j = 0; j < y; j = j + 1) {
+			sum = 0;
+			for (z = 0; z < x; z = z + 1) {
+				auxA = matrizA[z][j];
+				auxB = matrizB[i][z];
+				sum = sum + auxA * auxB;
+			};
+			matrizResult[i][j] = sum;
+		};
+	};
+
+	print "Calculado!\n";
+	for (i = 0; i < x; i = i + 1) {
+		print "[";
+		for (j = 0; j < y; j = j + 1) {
+			print matrizResult[i][j];
+			print " ";
+		};
+		print "]\n";
+	};
+	}
+
+	{
+		print "Soma de Matrizes de float\n";
+
+		int x;
+		int y;
+
+		float matrizA[0][0];
+		float matrizB[0][0];
+		float matrizResult[0][0];
+
+		print "Digite o numero de linhas: \n";
+
+		read x;
+
+		print "Digite o numero de colunas: \n";
+
+		read y;
+
+		matrizA = new float[x][y];
+		matrizB = new float[x][y];
+		matrizResult = new float[x][y];
+
+		print "Matriz A: \n";
+		for (i = 0; i < x; i = i + 1) {
+			for (j = 0; j < y; j = j + 1) {
+				print "Digite um numero: \n";
+				read matrizA[i][j];
+			};
+		};
+
+		print "Matriz B:";
+		for (i = 0; i < x; i = i + 1) {
+			for (j = 0; j < y; j = j + 1) {
+				print "Digite um numero: \n";
+				read matrizA[i][j];
+			};
+		};
+
+		for (i = 0; i < x; i = i + 1) {
+			for (j = 0; j < y; j = j + 1) {
+				matrizResult[i][j] = matrizA[i][j] + matrizB[i][j];
+			};
+		};
+
+		print "Calculado!\n";
+		for (i = 0; i < x; i = i + 1) {
+			print "[";
+			for (j = 0; j < y; j = j + 1) {
+				print matrizResult[i][j];
+				print " ";
+			};
+			print "]\n";
+		};
+	}
+}
